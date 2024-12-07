@@ -4,7 +4,7 @@
 #include <time.h>
 
 #define ORDEM 4 // Defina a ordem da arvore B
-#define TAMANHO_TABELA_HASH 1000
+#define TAMANHO_TABELA_HASH 40000
 
 // Estrutura de um registro na arvore
 typedef struct Registro {
@@ -30,7 +30,7 @@ typedef struct HashNode {
 // Tabela hash
 HashNode *tabela_hash[TAMANHO_TABELA_HASH];
 
-// FunÃ§Ã£o hash
+// Função hash
 unsigned int funcao_hash(char *coluna) {
     unsigned int hash = 0;
     while (*coluna) {
@@ -39,7 +39,7 @@ unsigned int funcao_hash(char *coluna) {
     return hash % TAMANHO_TABELA_HASH;
 }
 
-// FunÃ§Ã£o para remover espaÃ§os extras no final de uma string
+// Função para remover espaços extras no final de uma string
 void trim(char *str) {
     int i = strlen(str) - 1;
     while (i >= 0 && str[i] == ' ') {
@@ -59,21 +59,21 @@ void inserir_tabela_hash(char *coluna, long int endereco) {
     tabela_hash[indice] = novo;
 }
 
-// Buscar na tabela hash
-long int buscar_tabela_hash(char *coluna) {
+// Buscar na tabela hash (modificada para retornar todos os resultados)
+void buscar_tabela_hash(char *coluna, long int *resultados, int *num_resultados) {
     trim(coluna);
     unsigned int indice = funcao_hash(coluna);
     HashNode *atual = tabela_hash[indice];
+    *num_resultados = 0;
     while (atual) {
         if (strcmp(atual->coluna, coluna) == 0) {
-            return atual->endereco;
+            resultados[(*num_resultados)++] = atual->endereco;
         }
         atual = atual->proximo;
     }
-    return -1; // NÃ£o encontrado
 }
 
-// FunÃ§Ã£o para criar um nÃ³
+// Função para criar um nó
 NoB *criar_no(int folha) {
     NoB *no = (NoB *)malloc(sizeof(NoB));
     no->num_chaves = 0;
@@ -84,7 +84,7 @@ NoB *criar_no(int folha) {
     return no;
 }
 
-// FunÃ§Ã£o para buscar na Ã¡rvore B
+// Função para buscar na árvore B
 int buscar(NoB *raiz, int chave, FILE *arquivo) {
     int i = 0;
     while (i < raiz->num_chaves && chave > raiz->registros[i].chave) {
@@ -107,7 +107,7 @@ int buscar(NoB *raiz, int chave, FILE *arquivo) {
     return buscar(raiz->filhos[i], chave, arquivo);
 }
 
-// FunÃ§Ã£o para dividir um nÃ³
+// Função para dividir um nó
 void dividir_no(NoB *pai, int indice, NoB *no) {
     NoB *novo_no = criar_no(no->folha);
     novo_no->num_chaves = ORDEM / 2 - 1;
@@ -138,7 +138,7 @@ void dividir_no(NoB *pai, int indice, NoB *no) {
     pai->num_chaves++;
 }
 
-// FunÃ§Ã£o para inserir uma chave na Ã¡rvore B
+// Função para inserir uma chave na árvore B
 void inserir_nao_cheio(NoB *no, int chave, long int endereco) {
     int i = no->num_chaves - 1;
 
@@ -249,11 +249,15 @@ int main() {
                 printf("Digite a coluna para buscar: ");
                 scanf("%s", coluna_busca);
                 clock_t inicio = clock();
-                long int endereco_busca = buscar_tabela_hash(coluna_busca);
-                if (endereco_busca != -1) {
-                    fseek(arquivo, endereco_busca, SEEK_SET);
-                    if (fgets(linha, sizeof(linha), arquivo)) {
-                        printf("Registro encontrado para coluna '%s': %s", coluna_busca, linha);
+                long int resultados[100]; // Assumindo que não haverá mais de 100 resultados para simplificar
+                int num_resultados = 0;
+                buscar_tabela_hash(coluna_busca, resultados, &num_resultados);
+                if (num_resultados > 0) {
+                    for (int i = 0; i < num_resultados; i++) {
+                        fseek(arquivo, resultados[i], SEEK_SET);
+                        if (fgets(linha, sizeof(linha), arquivo)) {
+                            printf("Registro encontrado para coluna '%s': %s", coluna_busca, linha);
+                        }
                     }
                 } else {
                     printf("Coluna '%s' nao encontrada.\n", coluna_busca);
@@ -273,3 +277,4 @@ int main() {
     fclose(arquivo);
     return 0;
 }
+
