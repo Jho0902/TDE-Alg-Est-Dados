@@ -26,3 +26,23 @@ Este código utiliza duas estruturas principais para índices de memória: uma �
 ### Observações Adicionais
 Ambas as estruturas indexam registros por endereços físicos no arquivo de entrada (`produtos.txt`). A árvore B é ideal para buscas ordenadas e intervalos, enquanto a tabela hash oferece buscas rápidas para chaves específicas.
 
+## Comparativo: Tabela Hash x Árvore B
+
+| Critério                  | Árvore B                           | Tabela Hash                        |
+|---------------------------|-------------------------------------|-------------------------------------|
+| **Tempo de Criação do Índice** | 0.089 segundos                    | 0.095 segundos                    |
+| **Tempo de Busca**         | ~0 segundos (para 20 mil itens)    | ~0 segundos (para 20 mil itens)    |
+| **Estrutura**              | Árvore balanceada                 | Array com encadeamento separado    |
+| **Organização dos Dados**  | Ordenada por chaves               | Sem ordem específica               |
+| **Eficiência de Busca**    | Logarítmica (O(log n))            | Constante (O(1), idealmente)       |
+| **Suporte a Intervalos**   | Sim                               | Não                                |
+| **Desempenho com Colisões**| Não há colisões                   | Encadeamento separado resolve colisões |
+| **Uso de Memória**         | Mais alta (devido à estrutura da árvore) | Menor (apenas listas ligadas e array) |
+
+### Análise de Desempenho
+- **Criação do Índice**: A tabela hash foi ligeiramente mais lenta na criação do índice devido ao tempo de alocação de nós na lista encadeada.
+- **Busca**: Ambas as buscas foram extremamente rápidas (~0 segundos) no arquivo testado, que continha cerca de 20 mil itens.
+- **Cenários de Uso**:
+  - A **Árvore B** é ideal para buscas ordenadas e intervalos de valores.
+  - A **Tabela Hash** é mais eficiente para buscas pontuais, mas não suporta operações baseadas em intervalos.
+
