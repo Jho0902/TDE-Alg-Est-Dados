@@ -26,25 +26,26 @@ Este código utiliza duas estruturas principais para índices de memória: uma �
 ### Observações Adicionais
 Ambas as estruturas indexam registros por endereços físicos no arquivo de entrada (`produtos.txt`). A árvore B é ideal para buscas ordenadas e intervalos, enquanto a tabela hash oferece buscas rápidas para chaves específicas.
 
-## Comparativo: Tabela Hash x Árvore B
+## Comparativo: Tabela Hash x Árvore B x Índice Exaustivo
 
-| Critério                  | Árvore B                           | Tabela Hash                        |
-|---------------------------|-------------------------------------|-------------------------------------|
-| **Tempo de Criação do Índice** | 0.089 segundos                    | 0.095 segundos                    |
-| **Tempo Médio de Criação**     | **0.092 segundos**               | **0.092 segundos**                |
-| **Tempo de Busca**         | ~0 segundos (para 20 mil itens)    | ~0 segundos (para 20 mil itens)    |
-| **Estrutura**              | Árvore balanceada                 | Array com encadeamento separado    |
-| **Organização dos Dados**  | Ordenada por chaves               | Sem ordem específica               |
-| **Eficiência de Busca**    | Logarítmica (O(log n))            | Constante (O(1), idealmente)       |
-| **Suporte a Intervalos**   | Sim                               | Não                                |
-| **Desempenho com Colisões**| Não há colisões                   | Encadeamento separado resolve colisões |
-| **Uso de Memória**         | Mais alta (devido à estrutura da árvore) | Menor (apenas listas ligadas e array) |
+| Critério                  | Árvore B                           | Tabela Hash                        | Índice Exaustivo                 |
+|---------------------------|-------------------------------------|-------------------------------------|-----------------------------------|
+| **Tempo de Criação do Índice** | 0.089 segundos                    | 0.095 segundos                    | 0.01 segundos                    |
+| **Tempo Médio de Criação**     | **0.092 segundos**               | **0.092 segundos**                | **0.01 segundos**                |
+| **Tempo de Busca**         | ~0 segundos (para 20 mil itens)    | ~0 segundos (para 20 mil itens)    | 0.00 segundos                    |
+| **Estrutura**              | Árvore balanceada                 | Array com encadeamento separado    | Arquivo com índices sequenciais  |
+| **Organização dos Dados**  | Ordenada por chaves               | Sem ordem específica               | Ordenada sequencialmente         |
+| **Eficiência de Busca**    | Logarítmica (O(log n))            | Constante (O(1), idealmente)       | Linear (O(n)) para leitura de índices |
+| **Suporte a Intervalos**   | Sim                               | Não                                | Sim                              |
+| **Desempenho com Colisões**| Não há colisões                   | Encadeamento separado resolve colisões | Não se aplica                   |
+| **Uso de Memória**         | Mais alta (devido à estrutura da árvore) | Menor (apenas listas ligadas e array) | Depende do tamanho do índice e do arquivo binário |
 
 ### Análise de Desempenho
-- **Criação do Índice**: A tabela hash foi ligeiramente mais lenta na criação do índice devido ao tempo de alocação de nós na lista encadeada. A média do tempo de criação dos índices foi de **0.092 segundos**.
-- **Busca**: Ambas as buscas foram extremamente rápidas (~0 segundos) no arquivo testado, que continha cerca de 20 mil itens.
+- **Criação do Índice**: O índice exaustivo foi extremamente eficiente na criação, com um tempo de apenas **0.01 segundos**, sendo significativamente mais rápido que as outras estruturas.
+- **Busca**: O índice exaustivo também teve desempenho superior, com um tempo de busca de **0.00 segundos**.
 - **Cenários de Uso**:
-  - A **Árvore B** é ideal para buscas ordenadas e intervalos de valores.
-  - A **Tabela Hash** é mais eficiente para buscas pontuais, mas não suporta operações baseadas em intervalos.
+  - A **Árvore B** é ideal para buscas ordenadas e intervalos de valores em grandes bases de dados.
+  - A **Tabela Hash** é mais eficiente para buscas pontuais em chaves específicas.
+  - O **Índice Exaustivo** é extremamente rápido em cenários com dados menores ou onde o índice completo pode ser mantido em memória.
 
 
